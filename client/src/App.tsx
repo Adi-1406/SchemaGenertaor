@@ -6,7 +6,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 
 // For GitHub Pages, we need to use the base URL from the environment
-const base = "/SchemaGenerator/";
+const base = "/SchemaGenertaor/";
 
 function Router() {
   return (
