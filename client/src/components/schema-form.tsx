@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { insertSchemaSchema, schemaTypes } from "@shared/schema";
 import type { InsertSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+import { generateSchemaFromTemplate } from "@/lib/schema-templates";
 
 interface SchemaFormProps {
   onGenerate: (schema: any) => void;
@@ -57,16 +58,16 @@ export function SchemaForm({ onGenerate }: SchemaFormProps) {
   });
 
   function onSubmit(values: InsertSchema) {
-    // Add default schema structure before submitting
-    const baseSchema = {
-      "@context": "https://schema.org",
-      "@type": values.type,
-      "name": values.name,
-      "description": values.context
+    // Generate schema using the template function
+    const generatedSchema = generateSchemaFromTemplate(values);
+
+    // Create a new object with the generated schema
+    const submitValues = {
+      ...values,
+      schema: generatedSchema as Record<string, any>,
     };
 
-    values.schema = baseSchema;
-    mutation.mutate(values);
+    mutation.mutate(submitValues);
   }
 
   return (
