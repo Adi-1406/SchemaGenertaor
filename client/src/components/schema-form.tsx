@@ -9,7 +9,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { insertSchemaSchema, schemaTypes } from "@shared/schema";
 import type { InsertSchema } from "@shared/schema";
-import { generateSchemaFromTemplate } from "@/lib/schema-templates";
 import { apiRequest } from "@/lib/queryClient";
 
 interface SchemaFormProps {
@@ -18,7 +17,7 @@ interface SchemaFormProps {
 
 export function SchemaForm({ onGenerate }: SchemaFormProps) {
   const { toast } = useToast();
-  
+
   const form = useForm<InsertSchema>({
     resolver: zodResolver(insertSchemaSchema),
     defaultValues: {
@@ -31,10 +30,14 @@ export function SchemaForm({ onGenerate }: SchemaFormProps) {
 
   const mutation = useMutation({
     mutationFn: async (values: InsertSchema) => {
-      const schema = generateSchemaFromTemplate(values);
-      values.schema = schema;
-      const res = await apiRequest("POST", "/api/schemas", values);
-      return res.json();
+      try {
+        const res = await apiRequest("POST", "/api/schemas", values);
+        const data = await res.json();
+        return data;
+      } catch (error) {
+        console.error('Schema generation error:', error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       onGenerate(data.schema);
@@ -43,7 +46,8 @@ export function SchemaForm({ onGenerate }: SchemaFormProps) {
         description: "Your schema has been generated successfully.",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Error:', error);
       toast({
         title: "Error",
         description: "Failed to generate schema. Please try again.",
@@ -53,6 +57,15 @@ export function SchemaForm({ onGenerate }: SchemaFormProps) {
   });
 
   function onSubmit(values: InsertSchema) {
+    // Add default schema structure before submitting
+    const baseSchema = {
+      "@context": "https://schema.org",
+      "@type": values.type,
+      "name": values.name,
+      "description": values.context
+    };
+
+    values.schema = baseSchema;
     mutation.mutate(values);
   }
 

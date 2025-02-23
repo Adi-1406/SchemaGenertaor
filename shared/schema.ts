@@ -7,7 +7,7 @@ export const schemas = pgTable("schemas", {
   name: text("name").notNull(),
   type: text("type").notNull(),
   context: text("context").notNull(),
-  schema: json("schema").notNull(),
+  schema: json("schema").$type<Record<string, any>>().notNull(),
 });
 
 export const schemaTypes = [
