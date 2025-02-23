@@ -1,38 +1,28 @@
-import { users, type User, type InsertUser } from "@shared/schema";
-
-// modify the interface with any CRUD methods
-// you might need
+import type { Schema, InsertSchema } from "@shared/schema";
 
 export interface IStorage {
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  createSchema(schema: InsertSchema): Promise<Schema>;
+  getSchemas(): Promise<Schema[]>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  currentId: number;
+  private schemas: Map<number, Schema>;
+  private currentId: number;
 
   constructor() {
-    this.users = new Map();
+    this.schemas = new Map();
     this.currentId = 1;
   }
 
-  async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async createSchema(insertSchema: InsertSchema): Promise<Schema> {
     const id = this.currentId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    const schema: Schema = { ...insertSchema, id };
+    this.schemas.set(id, schema);
+    return schema;
+  }
+
+  async getSchemas(): Promise<Schema[]> {
+    return Array.from(this.schemas.values());
   }
 }
 
