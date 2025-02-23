@@ -9,8 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { insertSchemaSchema, schemaTypes } from "@shared/schema";
 import type { InsertSchema } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
-import { generateSchemaFromTemplate } from "@/lib/schema-templates";
+import { storage } from "@/lib/storage";
 
 interface SchemaFormProps {
   onGenerate: (schema: any) => void;
@@ -32,9 +31,7 @@ export function SchemaForm({ onGenerate }: SchemaFormProps) {
   const mutation = useMutation({
     mutationFn: async (values: InsertSchema) => {
       try {
-        const res = await apiRequest("POST", "/api/schemas", values);
-        const data = await res.json();
-        return data;
+        return await storage.createSchema(values);
       } catch (error) {
         console.error('Schema generation error:', error);
         throw error;
@@ -58,16 +55,7 @@ export function SchemaForm({ onGenerate }: SchemaFormProps) {
   });
 
   function onSubmit(values: InsertSchema) {
-    // Generate schema using the template function
-    const generatedSchema = generateSchemaFromTemplate(values);
-
-    // Create a new object with the generated schema
-    const submitValues = {
-      ...values,
-      schema: generatedSchema as Record<string, any>,
-    };
-
-    mutation.mutate(submitValues);
+    mutation.mutate(values);
   }
 
   return (
