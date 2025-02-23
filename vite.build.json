@@ -1,5 +1,5 @@
 {
-  "base": "/SchemaGenertaor/",
+  "base": "/SchemaGenerator/",
   "build": {
     "outDir": "dist/public",
     "emptyOutDir": true
